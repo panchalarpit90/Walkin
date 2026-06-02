@@ -3,6 +3,7 @@ package com.task.walkin.ui.dashboard.main
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
+import androidx.navigation.ui.NavigationUI
 import com.task.walkin.R
 import com.task.walkin.databinding.ActivityMainBinding
 
@@ -14,7 +15,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         val navController = findNavController(R.id.main_nav)
-//        NavigationUI.setupWithNavController(binding.bottomNavigationView, navController)
+        NavigationUI.setupWithNavController(binding.bottomNavigationView, navController)
 
     }
 }
