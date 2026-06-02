@@ -38,7 +38,7 @@ class CustomBottomNavBar @JvmOverloads constructor(
     private val colorInactive  = Color.parseColor("#AAAAAA")
     private val colorFabBg     = Color.parseColor("#2196F3")
     private val colorIconInFab = Color.WHITE
-    private val colorDivider   = Color.parseColor("#F2F2F2")
+    private val colorDivider   = Color.parseColor("#F7F7F7")
 
     private val bgPaint by lazy {
         Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -198,8 +198,12 @@ class CustomBottomNavBar @JvmOverloads constructor(
     }
 
     private fun drawActiveLabel(canvas: Canvas) {
-        val labelY = (fabCenterY() + fabRadius() + dpToPx(5f) + dpToPx(10f))
-            .coerceAtMost(height.toFloat() - dpToPx(2f))
+        val bt = barTop()
+        val barH = height - bt
+        val bmp = iconBitmapsSm[selectedIndex]
+        val iconTop = bt + barH * 0.25f - (bmp?.height ?: 0) / 2f
+        val labelY = (iconTop + (bmp?.height ?: 0) + dpToPx(13f))
+            .coerceIn(bt + dpToPx(4f), height.toFloat() - dpToPx(2f))
 
         labelPaint.textSize = dpToPx(12f)
         labelPaint.color    = colorAccent
