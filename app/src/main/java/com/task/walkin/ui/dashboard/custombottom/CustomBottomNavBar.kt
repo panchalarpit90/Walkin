@@ -16,8 +16,6 @@ class CustomBottomNavBar @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
-    // ─── Model ───────────────────────────────────────────────────────────────
-
     data class NavItem(
         val iconRes: Int,
         val label: String,
@@ -34,37 +32,37 @@ class CustomBottomNavBar @JvmOverloads constructor(
 
     private val fabIndex = items.indexOfFirst { it.isFab }.takeIf { it >= 0 } ?: 2
 
-    // ─── Colors ──────────────────────────────────────────────────────────────
 
     private val colorBg        = Color.WHITE
     private val colorAccent    = Color.parseColor("#2196F3")
     private val colorInactive  = Color.parseColor("#AAAAAA")
     private val colorFabBg     = Color.parseColor("#2196F3")
     private val colorIconInFab = Color.WHITE
-    private val colorDivider   = Color.parseColor("#E0E0E0")
-
-    // ─── Paints (lazy — safe, resources always ready on first draw) ──────────
+    private val colorDivider   = Color.parseColor("#F2F2F2")
 
     private val bgPaint by lazy {
         Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = colorBg; style = Paint.Style.FILL
+            color = colorBg
+            style = Paint.Style.FILL
         }
     }
     private val dividerPaint by lazy {
         Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = colorDivider; style = Paint.Style.FILL
+            color = colorDivider
+            style = Paint.Style.FILL
         }
     }
     private val fabPaint by lazy {
         Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = colorFabBg; style = Paint.Style.FILL
+            color = colorFabBg
+            style = Paint.Style.FILL
         }
     }
     private val fabShadowPaint by lazy {
         Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#33000000")
-            style = Paint.Style.FILL
-            maskFilter = BlurMaskFilter(dpToPx(6f), BlurMaskFilter.Blur.NORMAL)
+            color      = Color.parseColor("#55000000")
+            style      = Paint.Style.FILL
+            maskFilter = BlurMaskFilter(dpToPx(10f), BlurMaskFilter.Blur.NORMAL)
         }
     }
     private val labelPaint by lazy {
@@ -74,42 +72,45 @@ class CustomBottomNavBar @JvmOverloads constructor(
         }
     }
 
-    // ─── Bitmaps ─────────────────────────────────────────────────────────────
-
     private val iconBitmapsLg = arrayOfNulls<Bitmap>(items.size)
     private val iconBitmapsSm = arrayOfNulls<Bitmap>(items.size)
     private var iconsLoaded   = false
 
-    // ─── State ───────────────────────────────────────────────────────────────
 
-    private var selectedIndex  = fabIndex
-    private var fabCx          = 0f
-    private var isLayoutDone   = false
+    private var selectedIndex = fabIndex
+    private var fabCx         = 0f
+    private var isLayoutDone  = false
     private var fabAnimator: ValueAnimator? = null
 
     var onItemSelected: ((index: Int) -> Unit)? = null
 
-    // ─── Init ────────────────────────────────────────────────────────────────
+
+    private fun fabProtrude() = dpToPx(30f)
+    private fun fabRadius()   = dpToPx(28f)
+    private fun barTop()      = fabProtrude()
+
+    private fun fabCenterY()  = fabProtrude()
+
+    private fun fabIconSize() = (fabRadius() * 0.80f).toInt()
+    private fun itemWidth()         = width.toFloat() / items.size
+    private fun itemCenterX(i: Int) = itemWidth() * i + itemWidth() / 2f
 
     init {
         setLayerType(LAYER_TYPE_SOFTWARE, null)
+        setBackgroundColor(Color.TRANSPARENT)
     }
-
-    // ─── onSizeChanged ───────────────────────────────────────────────────────
 
     override fun onSizeChanged(w: Int, h: Int, oldW: Int, oldH: Int) {
         super.onSizeChanged(w, h, oldW, oldH)
         if (w == 0 || h == 0) return
-        loadIcons(h)
-        fabCx = itemCenterX(selectedIndex)
+        loadIcons()
+        fabCx        = itemCenterX(selectedIndex)
         isLayoutDone = true
         invalidate()
     }
 
-    private fun loadIcons(h: Int) {
-        // FAB icon size: fits inside the circle nicely
-        val lgSz = fabIconSize(h).coerceAtLeast(4)
-        // Inactive icon: fixed 22dp
+    private fun loadIcons() {
+        val lgSz = fabIconSize().coerceAtLeast(4)
         val smSz = dpToPx(22f).toInt().coerceAtLeast(4)
 
         items.forEachIndexed { i, item ->
@@ -130,99 +131,59 @@ class CustomBottomNavBar @JvmOverloads constructor(
         iconsLoaded = true
     }
 
-    // ─── Geometry ────────────────────────────────────────────────────────────
-
-    /**
-     * FAB radius = 28dp fixed. This keeps the circle a consistent size
-     * regardless of bar height, and prevents it from overflowing.
-     */
-    private fun fabRadius()     = dpToPx(28f)
-
-    /**
-     * FAB center Y: positioned so the circle sits ON the bar with a slight
-     * upward raise of ~8dp above the bar top edge.
-     * fabCy = topOfBar - raise + radius
-     *       = 0 - (-8dp) + 28dp ... but we keep it inside the view bounds.
-     * Result: circle top is at -8dp (slightly above bar),
-     *         circle bottom is at 48dp — well inside 70dp bar.
-     */
-    private fun fabCenterY()    = dpToPx(8f) + fabRadius()   // = ~36dp from top of view
-
-    private fun fabIconSize(h: Int) = (fabRadius() * 1.0f).toInt()
-
-    private fun itemWidth()         = width.toFloat() / items.size
-    private fun itemCenterX(i: Int) = itemWidth() * i + itemWidth() / 2f
-
-    // Inactive icon: vertically centered in upper portion of bar
-    private fun inactiveIconTopY(iconH: Int): Float {
-        val barMid = height * 0.38f
-        return (barMid - iconH / 2f).coerceAtLeast(dpToPx(6f))
-    }
-
-    private fun inactiveLabelY(iconBottom: Float) = iconBottom + dpToPx(3f) + dpToPx(10f)
-
-    private fun activeLabelY(): Float {
-        val cy = fabCenterY()
-        val r  = fabRadius()
-        return (cy + r + dpToPx(4f) + dpToPx(10f))
-            .coerceAtMost(height.toFloat() - dpToPx(2f))
-    }
-
-    // ─── Draw ────────────────────────────────────────────────────────────────
-
     override fun onDraw(canvas: Canvas) {
         if (!isLayoutDone || !iconsLoaded) return
 
         val w = width.toFloat()
         val h = height.toFloat()
+        val bt = barTop()
 
-        // 1. White bar background
-        canvas.drawRect(0f, 0f, w, h, bgPaint)
+        canvas.drawRect(0f, bt, w, h, bgPaint)
 
-        // 2. Top divider
-        canvas.drawRect(0f, 0f, w, dpToPx(1f), dividerPaint)
+        canvas.drawRect(0f, bt, w, bt + dpToPx(1f), dividerPaint)
 
-        // 3. Inactive tabs
         items.forEachIndexed { i, item ->
             if (i != selectedIndex) drawInactiveTab(canvas, i, item)
         }
 
-        // 4. FAB circle (slides between positions)
         drawFab(canvas)
 
-        // 5. Active label
         drawActiveLabel(canvas)
     }
 
     private fun drawInactiveTab(canvas: Canvas, index: Int, item: NavItem) {
-        val cx   = itemCenterX(index)
-        val bmp  = iconBitmapsSm[index] ?: return
-        val top  = inactiveIconTopY(bmp.height)
-        val left = cx - bmp.width / 2f
+        val cx      = itemCenterX(index)
+        val bmp     = iconBitmapsSm[index] ?: return
+        val bt      = barTop()
+        val barH    = height - bt
+        val iconTop = bt + barH * 0.25f - bmp.height / 2f
+        val left    = cx - bmp.width / 2f
 
         val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             colorFilter = PorterDuffColorFilter(colorInactive, PorterDuff.Mode.SRC_IN)
         }
-        canvas.drawBitmap(bmp, left, top, paint)
+        canvas.drawBitmap(bmp, left, iconTop.coerceAtLeast(bt + dpToPx(4f)), paint)
 
-        labelPaint.textSize = dpToPx(10f)
+        val labelY = iconTop + bmp.height + dpToPx(13f)
+        labelPaint.textSize = dpToPx(12f)
         labelPaint.color    = colorInactive
         labelPaint.typeface = Typeface.create("sans-serif", Typeface.NORMAL)
-        canvas.drawText(item.label, cx, inactiveLabelY(top + bmp.height), labelPaint)
+        canvas.drawText(
+            item.label, cx,
+            labelY.coerceAtMost(height.toFloat() - dpToPx(2f)),
+            labelPaint
+        )
     }
 
     private fun drawFab(canvas: Canvas) {
         val cy = fabCenterY()
         val r  = fabRadius()
 
-        // Soft shadow
         canvas.drawCircle(fabCx, cy + dpToPx(3f), r, fabShadowPaint)
-        // Blue circle
         canvas.drawCircle(fabCx, cy, r, fabPaint)
 
-        // White icon inside
-        val bmp = iconBitmapsLg[selectedIndex] ?: return
-        val iconDraw = r * 0.85f
+        val bmp      = iconBitmapsLg[selectedIndex] ?: return
+        val iconDraw = r * 0.75f
         val scale    = iconDraw / bmp.width.toFloat()
         val left     = fabCx - bmp.width  * scale / 2f
         val top      = cy    - bmp.height * scale / 2f
@@ -237,13 +198,14 @@ class CustomBottomNavBar @JvmOverloads constructor(
     }
 
     private fun drawActiveLabel(canvas: Canvas) {
-        labelPaint.textSize = dpToPx(10f)
+        val labelY = (fabCenterY() + fabRadius() + dpToPx(5f) + dpToPx(10f))
+            .coerceAtMost(height.toFloat() - dpToPx(2f))
+
+        labelPaint.textSize = dpToPx(12f)
         labelPaint.color    = colorAccent
         labelPaint.typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
-        canvas.drawText(items[selectedIndex].label, fabCx, activeLabelY(), labelPaint)
+        canvas.drawText(items[selectedIndex].label, fabCx, labelY, labelPaint)
     }
-
-    // ─── Touch ───────────────────────────────────────────────────────────────
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         if (event.action == MotionEvent.ACTION_UP) {
@@ -256,8 +218,6 @@ class CustomBottomNavBar @JvmOverloads constructor(
     }
 
     override fun performClick(): Boolean { super.performClick(); return true }
-
-    // ─── Public API ──────────────────────────────────────────────────────────
 
     fun selectItem(index: Int) {
         selectedIndex = index
@@ -274,12 +234,10 @@ class CustomBottomNavBar @JvmOverloads constructor(
 
     fun getSelectedIndex() = selectedIndex
 
-    // ─── Animation ───────────────────────────────────────────────────────────
-
     private fun animateFabTo(targetX: Float) {
         fabAnimator?.cancel()
         fabAnimator = ValueAnimator.ofFloat(fabCx, targetX).apply {
-            duration     = 320
+            duration     = 700
             interpolator = DecelerateInterpolator(2f)
             addUpdateListener {
                 fabCx = it.animatedValue as Float
@@ -288,8 +246,6 @@ class CustomBottomNavBar @JvmOverloads constructor(
             start()
         }
     }
-
-    // ─── Util ────────────────────────────────────────────────────────────────
 
     private fun dpToPx(dp: Float) = dp * resources.displayMetrics.density
 }

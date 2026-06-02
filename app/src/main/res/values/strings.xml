@@ -2,4 +2,12 @@
     <string name="app_name">Walkin</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="stay_safe">Stay Safe</string>
+    <string name="always_wear_a_mask">Always wear a mask</string>
+    <string name="wash_hand">Wash hand</string>
+    <string name="keep_distance_with_other_person">Keep distance with other person</string>
+    <string name="john_walkin_com">john@walkin.com</string>
+    <string name="_91_98xxxxxx">+91 98XXXXXX</string>
+    <string name="john_doe">John Doe</string>
+    <string name="ny_11434_usa">NY 11434, USA</string>
 </resources>

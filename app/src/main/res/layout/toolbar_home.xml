@@ -46,7 +46,7 @@
                     android:maxWidth="@dimen/_80sdp"
                     android:ellipsize="end"
                     android:singleLine="true"
-                    android:text="NY 11434, USA"
+                    android:text="@string/ny_11434_usa"
                     android:textColor="@color/primary_color"
                     android:textSize="@dimen/_8sdp" />
             </LinearLayout>

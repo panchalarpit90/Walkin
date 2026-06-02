@@ -12,12 +12,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
 
-    // Tracks whether we triggered the nav ourselves (to avoid callback loop)
     private var isNavigatingProgrammatically = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -26,12 +24,11 @@ class MainActivity : AppCompatActivity() {
         setupBottomNav()
         setupNavListener()
 
-        // Select Home on first launch only
+
         if (savedInstanceState == null) {
             binding.bottomNavBar.selectItem(2)
         }
     }
-
     private fun setupBottomNav() {
         binding.bottomNavBar.onItemSelected = listener@{ index ->
 
@@ -47,7 +44,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupNavListener() {
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            // Sync bottom nav when nav back stack changes (e.g. back press)
             val index = indexFor(destination.id) ?: return@addOnDestinationChangedListener
             if (binding.bottomNavBar.getSelectedIndex() != index) {
                 isNavigatingProgrammatically = true

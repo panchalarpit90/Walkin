@@ -83,7 +83,7 @@
                             android:id="@+id/tv_stay_safe_title"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:text="Stay Safe"
+                            android:text="@string/stay_safe"
                             android:textColor="@color/primary_color"
                             android:textSize="@dimen/_14ssp"
                             android:textStyle="bold"
@@ -135,7 +135,7 @@
                                     android:layout_marginTop="@dimen/_6sdp"
                                     android:gravity="center"
                                     android:textColor="@color/bg_color"
-                                    android:text="Always wear a mask" />
+                                    android:text="@string/always_wear_a_mask" />
                             </LinearLayout>
 
                             <LinearLayout
@@ -161,7 +161,7 @@
                                     android:layout_marginTop="@dimen/_6sdp"
                                     android:gravity="center"
                                     android:textColor="@color/bg_color"
-                                    android:text="Wash hand" />
+                                    android:text="@string/wash_hand" />
                             </LinearLayout>
 
                             <LinearLayout
@@ -188,7 +188,7 @@
                                     android:gravity="center"
                                     android:maxLines="2"
                                     android:textColor="@color/bg_color"
-                                    android:text="Keep distance with other person" />
+                                    android:text="@string/keep_distance_with_other_person" />
                             </LinearLayout>
 
                         </LinearLayout>

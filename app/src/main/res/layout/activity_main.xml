@@ -2,15 +2,9 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <!--
-        clipChildren="false" on the ROOT allows the FAB circle to draw
-        slightly above the bar's top edge without being cut off.
-    -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:clipChildren="false"
-        android:clipToPadding="false"
         android:background="@color/white">
 
         <fragment
@@ -18,6 +12,7 @@
             android:name="androidx.navigation.fragment.NavHostFragment"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:layout_marginBottom="-30dp"
             app:defaultNavHost="true"
             app:layout_constraintBottom_toTopOf="@+id/bottomNavBar"
             app:layout_constraintEnd_toEndOf="parent"
@@ -25,20 +20,10 @@
             app:layout_constraintTop_toTopOf="parent"
             app:navGraph="@navigation/main_nav_graph" />
 
-        <!--
-            Height 70dp:
-              - FAB radius = 28dp  → diameter = 56dp
-              - FAB cy     = 36dp from top of view
-              - Circle top = 36 - 28 = 8dp above view top (slight raise)
-              - Circle bot = 36 + 28 = 64dp (fits inside 70dp bar)
-              - Label below circle: ~64 + 4 + 10 = 78dp — fits with clipChildren=false
-        -->
         <com.task.walkin.ui.dashboard.custombottom.CustomBottomNavBar
             android:id="@+id/bottomNavBar"
             android:layout_width="0dp"
-            android:layout_height="70dp"
-            android:clipChildren="false"
-            android:clipToPadding="false"
+            android:layout_height="90dp"
             android:elevation="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
